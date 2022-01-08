@@ -38,4 +38,14 @@ impl Tui {
 
 fn main() {
     let tui = Tui::new();
+    let head = Block::new(3, 3);
+    let snake = Snake::new(head);
+    loop {
+        let t0 = std::time::Instant::now();
+        while std::time::Instant::now() - t0 < std::time::Duration::new(0, 250_000) {
+            print!(".");
+
+        }
+        break;
+    }
 }
