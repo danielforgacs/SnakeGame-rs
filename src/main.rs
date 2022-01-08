@@ -31,19 +31,30 @@ impl Snake {
 
 impl Tui {
     fn new() -> Self {
-        let mut stdout = stdout().into_raw_mode().unwrap();
+        let stdout = stdout().into_raw_mode().unwrap();
         Self { stdout }
+    }
+
+    fn draw_snake(&mut self, snake: &Snake) {
+        for block in &snake.blocks {
+            write!(self.stdout, "{}*", termion::cursor::Goto(block.x as u16, block.y as u16)).unwrap();
+        }
+    }
+
+    fn clear(&mut self) {
+        write!(self.stdout, "{}", termion::clear::All).unwrap();
     }
 }
 
 fn main() {
-    let tui = Tui::new();
+    let mut tui = Tui::new();
     let head = Block::new(3, 3);
     let snake = Snake::new(head);
     loop {
+        tui.clear();
+        tui.draw_snake(&snake);
         let t0 = std::time::Instant::now();
         while std::time::Instant::now() - t0 < std::time::Duration::new(0, 250_000) {
-            print!(".");
 
         }
         break;
