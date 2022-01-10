@@ -5,9 +5,16 @@ use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 use std::io::{Write, stdout, stdin};
 
+enum Direction {
+    Up,
+    Down,
+    Left,
+    Right,
+}
+
 struct Block {
-    x: u16,
-    y: u16,
+    x: i16,
+    y: i16,
 }
 
 struct Snake {
@@ -15,59 +22,64 @@ struct Snake {
 }
 
 impl Block {
-    fn new(x:u16, y: u16) -> Self {
+    fn new(x:i16, y: i16) -> Self {
         Self {x, y}
     }
 }
 
 impl Snake {
-    fn new(x: u16, y: u16) -> Self {
+    fn new(x: i16, y: i16) -> Self {
         Self {
-            blocks: vec![Block {x, y}]
+            blocks: vec![Block::new(x, y)]
         }
+    }
+
+    fn move_snake(&mut self, direction: Direction) {
+        let mut x = 0;
+        let mut y = 0;
+        match direction {
+            Direction::Up => y -= 1,
+            Direction::Down => y += 1,
+            Direction::Left => x -= 1,
+            Direction::Right => x += 1,
+        }
+        let last_block = &self.blocks[self.blocks.len() - 1];
+        let block = Block::new(last_block.x + x, last_block.y + y);
+        self.blocks.push(block);
     }
 }
 
 fn main() {
-    let stdin = stdin();
+    // let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
-    let snake = Snake::new(3, 3);
+    let mut snake = Snake::new(3, 3);
 
-    for block in snake.blocks.iter() {
-        write!(
-            stdout,
-            "{}{}*{}",
-            termion::clear::All,
-            termion::cursor::Goto(block.x, block.y),
-            termion::cursor::Hide
-        )
-            .unwrap();
-    }
-
-    stdout.flush().unwrap();
-
-    for c in stdin.keys() {
-        // write!(stdout,
-        //        "{}{}",
-        //        termion::cursor::Goto(1, 1),
-        //        termion::clear::CurrentLine)
-        //         .unwrap();
-
-        match c.unwrap() {
-            Key::Char('q') => break,
-            // Key::Char(c) => println!("{}", c),
-            // Key::Alt(c) => println!("^{}", c),
-            // Key::Ctrl(c) => println!("*{}", c),
-            // Key::Esc => println!("ESC"),
-            Key::Left => println!("←"),
-            Key::Right => println!("→"),
-            Key::Up => println!("↑"),
-            Key::Down => println!("↓"),
-            // Key::Backspace => println!("×"),
-            _ => {}
+    'main: loop {
+        for block in snake.blocks.iter() {
+            write!(
+                stdout,
+                "{}{}*:{}{}",
+                termion::clear::All,
+                termion::cursor::Goto(block.x as u16, block.y as u16),
+                snake.blocks.len(),
+                termion::cursor::Hide
+            )
+                .unwrap();
         }
         stdout.flush().unwrap();
+        let mut dir = Direction::Up;
+        for c in stdin().keys() {
+            match c.unwrap() {
+                Key::Char('q') => break 'main,
+                Key::Left => dir = Direction::Left,
+                Key::Right => dir = Direction::Right,
+                Key::Up => dir = Direction::Up,
+                Key::Down => dir = Direction::Down,
+                _ => {}
+            }
+            break;
+        }
+        snake.move_snake(dir);
     }
-
     write!(stdout, "{}", termion::cursor::Show).unwrap();
 }
