@@ -5,6 +5,7 @@ use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 use std::io::{Write, stdout, stdin};
 
+#[derive(Clone, Copy)]
 enum Direction {
     Up,
     Down,
@@ -19,6 +20,7 @@ struct Block {
 
 struct Snake {
     blocks: Vec<Block>,
+    direction: Direction,
 }
 
 impl Block {
@@ -28,9 +30,10 @@ impl Block {
 }
 
 impl Snake {
-    fn new(x: i16, y: i16) -> Self {
+    fn new(x: i16, y: i16, direction: Direction) -> Self {
         Self {
-            blocks: vec![Block::new(x, y)]
+            blocks: vec![Block::new(x, y)],
+            direction,
         }
     }
 
@@ -46,13 +49,14 @@ impl Snake {
         let last_block = &self.blocks[self.blocks.len() - 1];
         let block = Block::new(last_block.x + x, last_block.y + y);
         self.blocks.push(block);
+        self.direction = direction;
     }
 }
 
 fn main() {
     // let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
-    let mut snake = Snake::new(3, 3);
+    let mut snake = Snake::new(3, 3, Direction::Right);
 
     'main: loop {
         write!(stdout, "{}", termion::clear::All);
@@ -67,19 +71,19 @@ fn main() {
                 .unwrap();
         }
         stdout.flush().unwrap();
-        let mut dir = Direction::Up;
+        // let mut dir = &snake.direction;
         for c in stdin().keys() {
             match c.unwrap() {
                 Key::Char('q') => break 'main,
-                Key::Left => dir = Direction::Left,
-                Key::Right => dir = Direction::Right,
-                Key::Up => dir = Direction::Up,
-                Key::Down => dir = Direction::Down,
+                Key::Left => snake.move_snake(Direction::Left),
+                Key::Right => snake.move_snake(Direction::Right),
+                Key::Up => snake.move_snake(Direction::Up),
+                Key::Down => snake.move_snake(Direction::Down),
+                Key::Char('m') => snake.move_snake(snake.direction),
                 _ => {}
             }
             break;
         }
-        snake.move_snake(dir);
     }
     write!(stdout, "{}", termion::cursor::Show).unwrap();
 }
