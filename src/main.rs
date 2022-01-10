@@ -55,11 +55,11 @@ fn main() {
     let mut snake = Snake::new(3, 3);
 
     'main: loop {
+        write!(stdout, "{}", termion::clear::All);
         for block in snake.blocks.iter() {
             write!(
                 stdout,
-                "{}{}*:{}{}",
-                termion::clear::All,
+                "{}*:{}{}",
                 termion::cursor::Goto(block.x as u16, block.y as u16),
                 snake.blocks.len(),
                 termion::cursor::Hide
