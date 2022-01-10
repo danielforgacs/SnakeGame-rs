@@ -1,62 +1,73 @@
+extern crate termion;
+
+use termion::event::Key;
+use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 use std::io::{Write, stdout, stdin};
-use termion::raw::RawTerminal;
 
 struct Block {
-    x: usize,
-    y: usize,
+    x: u16,
+    y: u16,
 }
 
 struct Snake {
     blocks: Vec<Block>,
 }
 
-struct Tui {
-    stdout: RawTerminal<std::io::Stdout>,
-}
-
 impl Block {
-    fn new(x: usize, y: usize) -> Self {
-        Self { x, y }
+    fn new(x:u16, y: u16) -> Self {
+        Self {x, y}
     }
 }
 
 impl Snake {
-    fn new(head: Block) -> Self {
-        let head = Block::new(3, 3);
-        let blocks = vec![head];
-        Self { blocks }
-    }
-}
-
-impl Tui {
-    fn new() -> Self {
-        let stdout = stdout().into_raw_mode().unwrap();
-        Self { stdout }
-    }
-
-    fn draw_snake(&mut self, snake: &Snake) {
-        for block in &snake.blocks {
-            write!(self.stdout, "{}*", termion::cursor::Goto(block.x as u16, block.y as u16)).unwrap();
+    fn new(x: u16, y: u16) -> Self {
+        Self {
+            blocks: vec![Block {x, y}]
         }
-    }
-
-    fn clear(&mut self) {
-        write!(self.stdout, "{}", termion::clear::All).unwrap();
     }
 }
 
 fn main() {
-    let mut tui = Tui::new();
-    let head = Block::new(3, 3);
-    let snake = Snake::new(head);
-    loop {
-        tui.clear();
-        tui.draw_snake(&snake);
-        let t0 = std::time::Instant::now();
-        while std::time::Instant::now() - t0 < std::time::Duration::new(0, 250_000) {
+    let stdin = stdin();
+    let mut stdout = stdout().into_raw_mode().unwrap();
+    let snake = Snake::new(3, 3);
 
-        }
-        break;
+    for block in snake.blocks.iter() {
+        write!(
+            stdout,
+            "{}{}*{}",
+            termion::clear::All,
+            termion::cursor::Goto(block.x, block.y),
+            termion::cursor::Hide
+        )
+            .unwrap();
     }
+
+    stdout.flush().unwrap();
+
+    for c in stdin.keys() {
+        // write!(stdout,
+        //        "{}{}",
+        //        termion::cursor::Goto(1, 1),
+        //        termion::clear::CurrentLine)
+        //         .unwrap();
+
+        match c.unwrap() {
+            Key::Char('q') => break,
+            // Key::Char(c) => println!("{}", c),
+            // Key::Alt(c) => println!("^{}", c),
+            // Key::Ctrl(c) => println!("*{}", c),
+            // Key::Esc => println!("ESC"),
+            Key::Left => println!("←"),
+            Key::Right => println!("→"),
+            Key::Up => println!("↑"),
+            Key::Down => println!("↓"),
+            // Key::Backspace => println!("×"),
+            _ => {}
+        }
+        stdout.flush().unwrap();
+    }
+
+    write!(stdout, "{}", termion::cursor::Show).unwrap();
 }
