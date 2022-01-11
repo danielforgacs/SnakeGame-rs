@@ -72,7 +72,7 @@ impl Snake {
             // panic!("FUND");
         } else {
 
-            self.blocks.remove(self.blocks.len() - 1);
+            self.blocks.remove(0);
             self.blocks2.pop_back();
             // self.blocks.pop();
         }
@@ -101,7 +101,7 @@ fn main() {
 
     'main: loop {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        for block in snake.blocks2.iter() {
+        for block in snake.blocks.iter() {
             write!(stdout, "{}#", termion::cursor::Goto(food.block.x as u16, food.block.y as u16)).unwrap();
             write!(
                 stdout,
