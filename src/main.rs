@@ -29,6 +29,7 @@ struct Snake {
     direction: Direction,
 }
 
+#[derive(Debug)]
 struct Food {
     block: Block,
 }
@@ -65,8 +66,8 @@ impl Snake {
         // let xyz: () = food.block.x;
 
         if food.block.x == block.x && food.block.y == block.y {
-            food.block.x = thread_rng().gen_range(5..25);
-            food.block.y = thread_rng().gen_range(5..25);
+            food.block.x = thread_rng().gen_range(2..15);
+            food.block.y = thread_rng().gen_range(2..15);
             // food.block.y = 10;
             // panic!("FUND");
         } else {
@@ -117,10 +118,11 @@ fn main() {
             snake.blocks.len(),
         ).unwrap();
         write!(stdout,
-            "{}{:?}\n\r{:?}",
+            "{}{:?}\n\r{:?}\n\rfood: {:?}",
             termion::cursor::Goto(1, 21),
             snake.blocks,
             snake.blocks2,
+            food,
         ).unwrap();
         stdout.flush().unwrap();
         for c in stdin().keys() {
