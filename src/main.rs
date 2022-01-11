@@ -1,6 +1,7 @@
 extern crate termion;
 
 use std::collections::VecDeque;
+use rand::prelude::*;
 
 use termion::event::Key;
 use termion::input::TermRead;
@@ -64,8 +65,9 @@ impl Snake {
         // let xyz: () = food.block.x;
 
         if food.block.x == block.x && food.block.y == block.y {
-            food.block.x = 10;
-            food.block.y = 10;
+            food.block.x = thread_rng().gen_range(5..25);
+            food.block.y = thread_rng().gen_range(5..25);
+            // food.block.y = 10;
             // panic!("FUND");
         } else {
 
