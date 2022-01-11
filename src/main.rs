@@ -101,7 +101,7 @@ fn main() {
 
     'main: loop {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        for block in snake.blocks.iter() {
+        for block in snake.blocks2.iter() {
             write!(stdout, "{}#", termion::cursor::Goto(food.block.x as u16, food.block.y as u16)).unwrap();
             write!(
                 stdout,
