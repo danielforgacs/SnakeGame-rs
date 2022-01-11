@@ -5,7 +5,7 @@ use termion::input::TermRead;
 use termion::raw::IntoRawMode;
 use std::io::{Write, stdout, stdin};
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 enum Direction {
     Up,
     Down,
@@ -13,11 +13,13 @@ enum Direction {
     Right,
 }
 
+#[derive(Debug)]
 struct Block {
     x: i16,
     y: i16,
 }
 
+#[derive(Debug)]
 struct Snake {
     blocks: Vec<Block>,
     direction: Direction,
@@ -62,6 +64,7 @@ impl Snake {
         } else {
 
             self.blocks.remove(self.blocks.len() - 1);
+            // self.blocks.pop();
         }
         self.blocks.push(block);
         self.direction = direction;
@@ -102,6 +105,11 @@ fn main() {
             "{}len: {}",
             termion::cursor::Goto(1, 20),
             snake.blocks.len(),
+        ).unwrap();
+        write!(stdout,
+            "{}{:?}",
+            termion::cursor::Goto(1, 21),
+            snake.blocks,
         ).unwrap();
         stdout.flush().unwrap();
         for c in stdin().keys() {
