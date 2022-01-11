@@ -59,13 +59,32 @@ impl Snake {
         let block = Block::new(last_block.x + x, last_block.y + y);
 
         if food.block == block {
-            food.block.x = thread_rng().gen_range(2..15);
-            food.block.y = thread_rng().gen_range(2..15);
+            loop {
+                food.block.x = thread_rng().gen_range(2..15);
+                food.block.y = thread_rng().gen_range(2..15);
+                if !self.check_block_snake_colision(&food.block) {
+                    break;
+                }
+            }
         } else {
             self.blocks.pop_back();
         }
         self.blocks.push_front(block);
         self.direction = direction;
+    }
+
+    fn check_block_snake_colision(&self, block: &Block) -> bool {
+        let mut collision = false;
+        for snake_block in &self.blocks {
+            match block == snake_block {
+                false => (),
+                true => {
+                    collision = true;
+                    break;
+                },
+            };
+        }
+        collision
     }
 }
 
