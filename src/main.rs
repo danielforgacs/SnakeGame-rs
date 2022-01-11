@@ -30,6 +30,10 @@ struct Food {
     block: Block,
 }
 
+struct Display {
+    blocks: Vec<Block>,
+}
+
 impl Block {
     fn new(x:i16, y: i16) -> Self {
         Self {x, y}
@@ -94,35 +98,46 @@ impl Food {
     }
 }
 
+impl Display {
+    fn new(w: u8, h: u8) -> Self {
+        let mut blocks = Vec::<Block>::new();
+        for y in 0..h {
+            for x in 0..w {
+                let block = Block::new(y as i16, x as i16);
+                blocks.push(block);
+            }
+        }
+        Self { blocks }
+    }
+}
+
 fn main() {
     let mut stdout = stdout().into_raw_mode().unwrap();
     let mut snake = Snake::new(3, 3, Direction::Right);
     let mut food = Food::new(7, 2);
+    let display = Display::new(50, 25);
 
     'main: loop {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        for block in snake.blocks.iter() {
-            write!(stdout, "{}#", termion::cursor::Goto(food.block.x as u16, food.block.y as u16)).unwrap();
-            write!(
-                stdout,
-                "{}*{}",
-                termion::cursor::Goto(block.x as u16, block.y as u16),
-                termion::cursor::Hide
-            )
-                .unwrap();
+        for block in &display.blocks {
+            write!(stdout, "{}+", termion::cursor::Goto(block.x as u16 + 1, block.y as u16 + 1)).unwrap();
         }
-        write!(stdout,
-            "{}len: {}",
-            termion::cursor::Goto(1, 20),
-            snake.blocks.len(),
-        ).unwrap();
-        write!(stdout,
-            "{}{:?}\n\r{:?}\n\rfood: {:?}",
-            termion::cursor::Goto(1, 21),
-            snake.blocks,
-            snake.blocks,
-            food,
-        ).unwrap();
+        write!(stdout, "{}#", termion::cursor::Goto(food.block.x as u16, food.block.y as u16)).unwrap();
+        for block in snake.blocks.iter() {
+            write!(stdout, "{}*{}", termion::cursor::Goto(block.x as u16, block.y as u16), termion::cursor::Hide ).unwrap();
+        }
+        // write!(stdout,
+        //     "{}len: {}",
+        //     termion::cursor::Goto(1, 20),
+        //     snake.blocks.len(),
+        // ).unwrap();
+        // write!(stdout,
+        //     "{}{:?}\n\r{:?}\n\rfood: {:?}",
+        //     termion::cursor::Goto(1, 21),
+        //     snake.blocks,
+        //     snake.blocks,
+        //     food,
+        // ).unwrap();
         stdout.flush().unwrap();
         for c in stdin().keys() {
             match c.unwrap() {
