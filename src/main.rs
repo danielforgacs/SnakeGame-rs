@@ -48,30 +48,36 @@ impl Snake {
         }
         let last_block = &self.blocks[self.blocks.len() - 1];
         let block = Block::new(last_block.x + x, last_block.y + y);
+        self.blocks.remove(self.blocks.len() - 1);
+        // self.blocks.pop();
         self.blocks.push(block);
         self.direction = direction;
     }
 }
 
 fn main() {
-    // let stdin = stdin();
     let mut stdout = stdout().into_raw_mode().unwrap();
     let mut snake = Snake::new(3, 3, Direction::Right);
+    let food = Block::new(7, 2);
+    // let block0 = Block::new(4, 3);
+    // let block1 = Block::new(5, 3);
+    // snake.blocks.push(block0);
+    // snake.blocks.push(block1);
 
     'main: loop {
-        write!(stdout, "{}", termion::clear::All);
+        write!(stdout, "{}", termion::clear::All).unwrap();
         for block in snake.blocks.iter() {
+            write!(stdout, "{}#", termion::cursor::Goto(food.x as u16, food.y as u16)).unwrap();
             write!(
                 stdout,
-                "{}*:{}{}",
+                "{}*{}",
                 termion::cursor::Goto(block.x as u16, block.y as u16),
-                snake.blocks.len(),
+                // snake.blocks.len(),
                 termion::cursor::Hide
             )
                 .unwrap();
         }
         stdout.flush().unwrap();
-        // let mut dir = &snake.direction;
         for c in stdin().keys() {
             match c.unwrap() {
                 Key::Char('q') => break 'main,
