@@ -24,8 +24,7 @@ struct Block {
 
 #[derive(Debug)]
 struct Snake {
-    blocks: Vec<Block>,
-    blocks2: VecDeque<Block>,
+    blocks: VecDeque<Block>,
     direction: Direction,
 }
 
@@ -45,8 +44,7 @@ impl Snake {
         let head = Block::new(x, y);
         let blocks2 = VecDeque::from_iter([head]);
         Self {
-            blocks: vec![Block::new(x, y)],
-            blocks2,
+            blocks: blocks2,
             direction,
         }
     }
@@ -60,24 +58,16 @@ impl Snake {
             Direction::Left => x -= 1,
             Direction::Right => x += 1,
         }
-        let last_block = &self.blocks[self.blocks.len() - 1];
+        let last_block = self.blocks.front().unwrap();
         let block = Block::new(last_block.x + x, last_block.y + y);
-        // assert_eq!(food.block.x, 7);
-        // let xyz: () = food.block.x;
 
         if food.block.x == block.x && food.block.y == block.y {
             food.block.x = thread_rng().gen_range(2..15);
             food.block.y = thread_rng().gen_range(2..15);
-            // food.block.y = 10;
-            // panic!("FUND");
         } else {
-
-            self.blocks.remove(0);
-            self.blocks2.pop_back();
-            // self.blocks.pop();
+            self.blocks.pop_back();
         }
-        self.blocks.push(block);
-        self.blocks2.push_front(block);
+        self.blocks.push_front(block);
         self.direction = direction;
     }
 }
@@ -91,23 +81,16 @@ impl Food {
 fn main() {
     let mut stdout = stdout().into_raw_mode().unwrap();
     let mut snake = Snake::new(3, 3, Direction::Right);
-    // let food = Block::new(7, 2);
     let mut food = Food::new(7, 2);
-
-    // let block0 = Block::new(4, 3);
-    // let block1 = Block::new(5, 3);
-    // snake.blocks.push(block0);
-    // snake.blocks.push(block1);
 
     'main: loop {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        for block in snake.blocks2.iter() {
+        for block in snake.blocks.iter() {
             write!(stdout, "{}#", termion::cursor::Goto(food.block.x as u16, food.block.y as u16)).unwrap();
             write!(
                 stdout,
                 "{}*{}",
                 termion::cursor::Goto(block.x as u16, block.y as u16),
-                // snake.blocks.len(),
                 termion::cursor::Hide
             )
                 .unwrap();
@@ -121,7 +104,7 @@ fn main() {
             "{}{:?}\n\r{:?}\n\rfood: {:?}",
             termion::cursor::Goto(1, 21),
             snake.blocks,
-            snake.blocks2,
+            snake.blocks,
             food,
         ).unwrap();
         stdout.flush().unwrap();
