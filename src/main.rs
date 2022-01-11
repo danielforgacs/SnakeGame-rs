@@ -133,6 +133,7 @@ fn main() {
             write!(stdout, "{}*{}", termion::cursor::Goto(block.x as u16, block.y as u16), termion::cursor::Hide ).unwrap();
         }
         stdout.flush().unwrap();
+        let old_dir = snake.direction;
         for c in stdin().keys() {
             match c.unwrap() {
                 Key::Char('q') => break 'main,
@@ -144,6 +145,13 @@ fn main() {
                 _ => {}
             }
             break;
+        }
+        if snake.blocks.len() > 1 {
+            match (old_dir, snake.direction) {
+                (Direction::Up, Direction::Down) | (Direction::Down, Direction::Up) => break 'main,
+                (Direction::Left, Direction::Right) | (Direction::Right, Direction::Left) => break 'main,
+                _ => (),
+            }
         }
     }
     write!(stdout, "{}", termion::cursor::Show).unwrap();
