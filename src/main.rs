@@ -1,12 +1,9 @@
-extern crate termion;
-
 use std::collections::VecDeque;
+use std::io::{Write, stdout, stdin};
 use rand::prelude::*;
-
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
-use std::io::{Write, stdout, stdin};
 
 #[derive(Clone, Copy, Debug)]
 enum Direction {
@@ -16,7 +13,7 @@ enum Direction {
     Right,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 struct Block {
     x: i16,
     y: i16,
@@ -61,7 +58,7 @@ impl Snake {
         let last_block = self.blocks.front().unwrap();
         let block = Block::new(last_block.x + x, last_block.y + y);
 
-        if food.block.x == block.x && food.block.y == block.y {
+        if food.block == block {
             food.block.x = thread_rng().gen_range(2..15);
             food.block.y = thread_rng().gen_range(2..15);
         } else {
