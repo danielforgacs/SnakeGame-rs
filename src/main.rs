@@ -90,6 +90,18 @@ impl Snake {
         }
         collision
     }
+
+    fn check_sneak_head_blocks_clossion(&self, blocks: &Vec<Block>) -> bool {
+        let head = self.blocks.front().unwrap();
+        let mut collision = false;
+        for block in blocks {
+            if block.x == head.x - 1 && block.y == head.y -1 {
+                collision = true;
+                break;
+            }
+        }
+        collision
+    }
 }
 
 impl Food {
@@ -152,6 +164,9 @@ fn main() {
                 (Direction::Left, Direction::Right) | (Direction::Right, Direction::Left) => break 'main,
                 _ => (),
             }
+        }
+        if snake.check_sneak_head_blocks_clossion(&display.blocks) {
+            break;
         }
     }
     write!(stdout, "{}", termion::cursor::Show).unwrap();
