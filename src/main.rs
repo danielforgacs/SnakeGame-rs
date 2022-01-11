@@ -1,5 +1,7 @@
 extern crate termion;
 
+use std::collections::VecDeque;
+
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
@@ -13,7 +15,7 @@ enum Direction {
     Right,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct Block {
     x: i16,
     y: i16,
@@ -22,6 +24,7 @@ struct Block {
 #[derive(Debug)]
 struct Snake {
     blocks: Vec<Block>,
+    blocks2: VecDeque<Block>,
     direction: Direction,
 }
 
@@ -37,8 +40,11 @@ impl Block {
 
 impl Snake {
     fn new(x: i16, y: i16, direction: Direction) -> Self {
+        let head = Block::new(x, y);
+        let blocks2 = VecDeque::from_iter([head]);
         Self {
             blocks: vec![Block::new(x, y)],
+            blocks2,
             direction,
         }
     }
@@ -64,9 +70,11 @@ impl Snake {
         } else {
 
             self.blocks.remove(self.blocks.len() - 1);
+            self.blocks2.pop_back();
             // self.blocks.pop();
         }
         self.blocks.push(block);
+        self.blocks2.push_front(block);
         self.direction = direction;
     }
 }
@@ -90,7 +98,7 @@ fn main() {
 
     'main: loop {
         write!(stdout, "{}", termion::clear::All).unwrap();
-        for block in snake.blocks.iter() {
+        for block in snake.blocks2.iter() {
             write!(stdout, "{}#", termion::cursor::Goto(food.block.x as u16, food.block.y as u16)).unwrap();
             write!(
                 stdout,
@@ -107,9 +115,10 @@ fn main() {
             snake.blocks.len(),
         ).unwrap();
         write!(stdout,
-            "{}{:?}",
+            "{}{:?}\n\r{:?}",
             termion::cursor::Goto(1, 21),
             snake.blocks,
+            snake.blocks2,
         ).unwrap();
         stdout.flush().unwrap();
         for c in stdin().keys() {
