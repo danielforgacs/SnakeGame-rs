@@ -41,7 +41,7 @@ impl Snake {
         }
     }
 
-    fn move_snake(&mut self, direction: Direction, food: &Food) {
+    fn move_snake(&mut self, direction: Direction, food: &mut Food) {
         let mut x = 0;
         let mut y = 0;
         match direction {
@@ -52,8 +52,17 @@ impl Snake {
         }
         let last_block = &self.blocks[self.blocks.len() - 1];
         let block = Block::new(last_block.x + x, last_block.y + y);
-        self.blocks.remove(self.blocks.len() - 1);
-        // self.blocks.pop();
+        // assert_eq!(food.block.x, 7);
+        // let xyz: () = food.block.x;
+
+        if food.block.x == block.x && food.block.y == block.y {
+            food.block.x = 10;
+            food.block.y = 10;
+            // panic!("FUND");
+        } else {
+
+            self.blocks.remove(self.blocks.len() - 1);
+        }
         self.blocks.push(block);
         self.direction = direction;
     }
@@ -69,7 +78,7 @@ fn main() {
     let mut stdout = stdout().into_raw_mode().unwrap();
     let mut snake = Snake::new(3, 3, Direction::Right);
     // let food = Block::new(7, 2);
-    let food = Food::new(7, 2);
+    let mut food = Food::new(7, 2);
 
     // let block0 = Block::new(4, 3);
     // let block1 = Block::new(5, 3);
@@ -89,15 +98,20 @@ fn main() {
             )
                 .unwrap();
         }
+        write!(stdout,
+            "{}len: {}",
+            termion::cursor::Goto(1, 20),
+            snake.blocks.len(),
+        ).unwrap();
         stdout.flush().unwrap();
         for c in stdin().keys() {
             match c.unwrap() {
                 Key::Char('q') => break 'main,
-                Key::Left => snake.move_snake(Direction::Left, &food),
-                Key::Right => snake.move_snake(Direction::Right, &food),
-                Key::Up => snake.move_snake(Direction::Up, &food),
-                Key::Down => snake.move_snake(Direction::Down, &food),
-                Key::Char('m') => snake.move_snake(snake.direction, &food),
+                Key::Left => snake.move_snake(Direction::Left, &mut food),
+                Key::Right => snake.move_snake(Direction::Right, &mut food),
+                Key::Up => snake.move_snake(Direction::Up, &mut food),
+                Key::Down => snake.move_snake(Direction::Down, &mut food),
+                Key::Char('m') => snake.move_snake(snake.direction, &mut food),
                 _ => {}
             }
             break;
