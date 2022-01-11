@@ -100,10 +100,16 @@ impl Food {
 
 impl Display {
     fn new(w: u8, h: u8) -> Self {
+        let w = w as i16;
+        let h = h as i16;
         let mut blocks = Vec::<Block>::new();
-        for y in 0..h {
-            for x in 0..w {
-                let block = Block::new(y as i16, x as i16);
+        for i in 0..2_i16 {
+            for k in 0..w as i16 {
+                let block = Block::new(k, i * h);
+                blocks.push(block);
+            }
+            for l in 0..h as i16 {
+                let block = Block::new(i * w, l);
                 blocks.push(block);
             }
         }
@@ -126,18 +132,6 @@ fn main() {
         for block in snake.blocks.iter() {
             write!(stdout, "{}*{}", termion::cursor::Goto(block.x as u16, block.y as u16), termion::cursor::Hide ).unwrap();
         }
-        // write!(stdout,
-        //     "{}len: {}",
-        //     termion::cursor::Goto(1, 20),
-        //     snake.blocks.len(),
-        // ).unwrap();
-        // write!(stdout,
-        //     "{}{:?}\n\r{:?}\n\rfood: {:?}",
-        //     termion::cursor::Goto(1, 21),
-        //     snake.blocks,
-        //     snake.blocks,
-        //     food,
-        // ).unwrap();
         stdout.flush().unwrap();
         for c in stdin().keys() {
             match c.unwrap() {
