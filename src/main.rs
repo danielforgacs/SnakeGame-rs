@@ -102,6 +102,21 @@ impl Snake {
         }
         collision
     }
+
+    fn check_self_collision(&self) -> bool {
+        let head = &self.blocks[0];
+        let mut first = true;
+        for block in &self.blocks {
+            if first {
+                first = false;
+                continue;
+            }
+            if block == head {
+                return true;
+            }
+        }
+        false
+    }
 }
 
 impl Food {
@@ -166,6 +181,10 @@ fn main() {
             }
         }
         if snake.check_sneak_head_blocks_clossion(&display.blocks) {
+            break;
+        }
+
+        if snake.check_self_collision() {
             break;
         }
     }
