@@ -91,7 +91,7 @@ impl Snake {
         collision
     }
 
-    fn check_sneak_head_blocks_clossion<'a, T: Iterator<Item = &'a Block>>(&self, blocks: T) -> bool {
+    fn check_sneak_head_blocks_clossion(&self, blocks: &Vec<Block>) -> bool {
         let head = self.blocks.front().unwrap();
         let mut collision = false;
         for block in blocks {
@@ -165,7 +165,7 @@ fn main() {
                 _ => (),
             }
         }
-        if snake.check_sneak_head_blocks_clossion(display.blocks.iter()) {
+        if snake.check_sneak_head_blocks_clossion(&display.blocks) {
             break;
         }
     }
