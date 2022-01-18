@@ -155,6 +155,7 @@ fn main() {
     let mut food = Food::new(7, 2);
     let display = Display::new(50, 25);
     let interval = Duration::new(0, 200_000_000);
+    enable_raw_mode();
 
     'main: loop {
 
@@ -179,10 +180,12 @@ fn main() {
                         'R' => snake.move_snake(Direction::Right, &mut food),
                         'U' => snake.move_snake(Direction::Up, &mut food),
                         'D' => snake.move_snake(Direction::Down, &mut food),
-                        _ => {},
+                        _ => snake.move_snake(snake.direction, &mut food),
                     }
+                    break;
+                } else {
+                    snake.move_snake(snake.direction, &mut food);
                 }
-                break;
             }
         // }
         {
