@@ -218,6 +218,7 @@ fn main() {
         }
     }
     write!(stdout, "{}", termion::cursor::Show).unwrap();
+    writeln!(stdout, "--> score: {}\n", snake.blocks.len()).unwrap();
 }
 
 fn get_command(wait_for: Duration) -> Option<char> {
