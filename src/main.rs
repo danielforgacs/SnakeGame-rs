@@ -4,6 +4,11 @@ use rand::prelude::*;
 use termion::event::Key;
 use termion::input::TermRead;
 use termion::raw::IntoRawMode;
+use std::time::{Duration, Instant};
+use crossterm::{ExecutableCommand};
+use crossterm::terminal::{Clear, ClearType, enable_raw_mode, disable_raw_mode};
+use crossterm::cursor::{Show, Hide};
+use crossterm::event::{poll, read, Event, KeyCode, KeyEvent};
 
 #[derive(Clone, Copy, Debug)]
 enum Direction {
@@ -149,8 +154,10 @@ fn main() {
     let mut snake = Snake::new(3, 3, Direction::Right);
     let mut food = Food::new(7, 2);
     let display = Display::new(50, 25);
+    let interval = Duration::new(0, 200_000_000);
 
     'main: loop {
+
         write!(stdout, "{}", termion::clear::All).unwrap();
         for block in &display.blocks {
             write!(stdout, "{}+", termion::cursor::Goto(block.x as u16 + 1, block.y as u16 + 1)).unwrap();
@@ -161,17 +168,36 @@ fn main() {
         }
         stdout.flush().unwrap();
         let old_dir = snake.direction;
-        for c in stdin().keys() {
-            match c.unwrap() {
-                Key::Char('q') => break 'main,
-                Key::Left => snake.move_snake(Direction::Left, &mut food),
-                Key::Right => snake.move_snake(Direction::Right, &mut food),
-                Key::Up => snake.move_snake(Direction::Up, &mut food),
-                Key::Down => snake.move_snake(Direction::Down, &mut food),
-                Key::Char('m') => snake.move_snake(snake.direction, &mut food),
-                _ => {}
+        let now = Instant::now();
+        // {
+            // write!(stdout, "//").unwrap();
+            while now.elapsed() < interval {
+                if let Some(command) = get_command(interval - now.elapsed()) {
+                    match command {
+                        'q' => break 'main,
+                        'L' => snake.move_snake(Direction::Left, &mut food),
+                        'R' => snake.move_snake(Direction::Right, &mut food),
+                        'U' => snake.move_snake(Direction::Up, &mut food),
+                        'D' => snake.move_snake(Direction::Down, &mut food),
+                        _ => {},
+                    }
+                }
+                break;
             }
-            break;
+        // }
+        {
+            // for c in stdin().keys() {
+            //     match c.unwrap() {
+            //         Key::Char('q') => break 'main,
+            //         Key::Left => snake.move_snake(Direction::Left, &mut food),
+            //         Key::Right => snake.move_snake(Direction::Right, &mut food),
+            //         Key::Up => snake.move_snake(Direction::Up, &mut food),
+            //         Key::Down => snake.move_snake(Direction::Down, &mut food),
+            //         Key::Char('m') => snake.move_snake(snake.direction, &mut food),
+            //         _ => {}
+            //     }
+            //     break;
+            // }
         }
         if snake.blocks.len() > 1 {
             match (old_dir, snake.direction) {
@@ -189,4 +215,28 @@ fn main() {
         }
     }
     write!(stdout, "{}", termion::cursor::Show).unwrap();
+}
+
+fn get_command(wait_for: Duration) -> Option<char> {
+    let key_event = wait_for_key_event(wait_for)?;
+
+    match key_event.code {
+        KeyCode::Char('q') => Some('q'),
+        KeyCode::Left => Some('L'),
+        KeyCode::Right => Some('R'),
+        KeyCode::Up => Some('U'),
+        KeyCode::Down => Some('D'),
+        _ => None
+    }
+}
+
+fn wait_for_key_event(wait_for: Duration) -> Option<KeyEvent> {
+    let mut result = None;
+    if poll(wait_for).ok()? {
+        let event = read().ok()?;
+        if let Event::Key(key_event) = event {
+            result = Some(key_event);
+        }
+    }
+    result
 }
