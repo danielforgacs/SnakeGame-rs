@@ -170,37 +170,20 @@ fn main() {
         stdout.flush().unwrap();
         let old_dir = snake.direction;
         let now = Instant::now();
-        // {
-            // write!(stdout, "//").unwrap();
-            while now.elapsed() < interval {
-                if let Some(command) = get_command(interval - now.elapsed()) {
-                    match command {
-                        'q' => break 'main,
-                        'L' => snake.move_snake(Direction::Left, &mut food),
-                        'R' => snake.move_snake(Direction::Right, &mut food),
-                        'U' => snake.move_snake(Direction::Up, &mut food),
-                        'D' => snake.move_snake(Direction::Down, &mut food),
-                        _ => snake.move_snake(snake.direction, &mut food),
-                    }
-                    break;
-                } else {
-                    snake.move_snake(snake.direction, &mut food);
+        while now.elapsed() < interval {
+            if let Some(command) = get_command(interval - now.elapsed()) {
+                match command {
+                    'q' => break 'main,
+                    'L' => snake.move_snake(Direction::Left, &mut food),
+                    'R' => snake.move_snake(Direction::Right, &mut food),
+                    'U' => snake.move_snake(Direction::Up, &mut food),
+                    'D' => snake.move_snake(Direction::Down, &mut food),
+                    _ => snake.move_snake(snake.direction, &mut food),
                 }
+                break;
+            } else {
+                snake.move_snake(snake.direction, &mut food);
             }
-        // }
-        {
-            // for c in stdin().keys() {
-            //     match c.unwrap() {
-            //         Key::Char('q') => break 'main,
-            //         Key::Left => snake.move_snake(Direction::Left, &mut food),
-            //         Key::Right => snake.move_snake(Direction::Right, &mut food),
-            //         Key::Up => snake.move_snake(Direction::Up, &mut food),
-            //         Key::Down => snake.move_snake(Direction::Down, &mut food),
-            //         Key::Char('m') => snake.move_snake(snake.direction, &mut food),
-            //         _ => {}
-            //     }
-            //     break;
-            // }
         }
         if snake.blocks.len() > 1 {
             match (old_dir, snake.direction) {
@@ -217,8 +200,10 @@ fn main() {
             break;
         }
     }
+    write!(stdout, "{}", termion::clear::All).unwrap();
     write!(stdout, "{}", termion::cursor::Show).unwrap();
-    writeln!(stdout, "--> score: {}\n", snake.blocks.len()).unwrap();
+    write!(stdout, "{}", termion::cursor::Goto(3, 3)).unwrap();
+    writeln!(stdout, "--> score: {}", snake.blocks.len()).unwrap();
 }
 
 fn get_command(wait_for: Duration) -> Option<char> {
