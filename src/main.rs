@@ -69,8 +69,8 @@ impl Snake {
 
         if food.block == block {
             loop {
-                food.block.x = thread_rng().gen_range(2..15);
-                food.block.y = thread_rng().gen_range(2..15);
+                food.block.x = thread_rng().gen_range(2..13);
+                food.block.y = thread_rng().gen_range(2..10);
                 if !self.check_block_snake_colision(&food.block) {
                     break;
                 }
@@ -153,8 +153,8 @@ fn main() {
     let mut stdout = stdout().into_raw_mode().unwrap();
     let mut snake = Snake::new(3, 3, Direction::Right);
     let mut food = Food::new(7, 2);
-    let display = Display::new(50, 25);
-    let interval = Duration::new(0, 200_000_000);
+    let display = Display::new(15, 10);
+    let interval = Duration::new(0, 150_000_000);
     enable_raw_mode();
 
     'main: loop {
